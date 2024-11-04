@@ -9,29 +9,54 @@ export class UserService {
 
   // ฟังก์ชันการลงทะเบียน
   async registerUser(data: any) {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    return this.prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        role: data.role, // กำหนดบทบาท เช่น customer, store, driver, admin
-      },
-    });
+  // ตรวจสอบข้อมูลที่ได้รับ
+  console.log("Received data:", data);
+  
+  const hashedPassword = await bcrypt.hash(data.password, 10);
+
+  // ตรวจสอบว่าข้อมูล name และ email ถูกต้อง
+  if (!data.email || !data.name) {
+    throw new Error("Email or name is missing");
   }
+
+  return this.prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
+    },
+  });
+}
 
   // ฟังก์ชันการเข้าสู่ระบบ
   async loginUser(data: any) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: data.email },
-    });
-
-    if (user && (await bcrypt.compare(data.password, user.password))) {
-      // สร้าง JWT Token ให้ผู้ใช้หลังเข้าสู่ระบบสำเร็จ
-      const token = this.jwtService.sign({ userId: user.id, role: user.role });
-      return { message: 'Login successful', token };
-    } else {
-      throw new Error('Invalid credentials');
-    }
+  // ตรวจสอบว่ามีค่า email ถูกต้อง
+  if (!data.email) {
+    throw new Error("Email is required for login");
   }
+
+  const user = await this.prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isPasswordValid = await bcrypt.compare(data.password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Invalid password");
+  }
+
+  // สร้าง token หรือทำขั้นตอนอื่น ๆ ที่ต้องการ
+  return { message: "Login successful" };
+}
+
+  async getAllUsers() {
+    return this.prisma.user.findMany();
+  }
+
 }

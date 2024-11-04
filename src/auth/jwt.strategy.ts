@@ -8,11 +8,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET, // ใช้ secret จาก .env
+      secretOrKey: 'YOUR_SECRET_KEY', // ตรวจสอบว่าใช้ secret ที่ถูกต้อง
     });
   }
 
   async validate(payload: any) {
-    return { userId: payload.userId, role: payload.role };
+    // ตรวจสอบ payload ที่ส่งกลับมา
+    console.log('Payload:', payload);
+    
+    // ควรจะส่งข้อมูลผู้ใช้ที่มี role กลับไป
+    return { userId: payload.sub, email: payload.email, role: payload.role };
   }
 }

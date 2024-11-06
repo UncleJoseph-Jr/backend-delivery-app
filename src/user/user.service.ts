@@ -51,8 +51,15 @@ export class UserService {
     throw new Error("Invalid password");
   }
 
+  const payload = { sub: user.id, email: user.email, role: user.role };
+  const token = this.jwtService.sign(payload);
+
+  return {
+    message: "Login successful",
+    token: token
+  };
   // สร้าง token หรือทำขั้นตอนอื่น ๆ ที่ต้องการ
-  return { message: "Login successful" };
+  // return { message: "Login successful" };
 }
 
   async getAllUsers() {

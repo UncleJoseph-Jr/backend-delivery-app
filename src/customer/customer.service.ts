@@ -62,86 +62,58 @@ export class CustomerService {
 
   // Function to place an order by a customer
   async placeOrder(createOrderDto: CreateOrderDto) {
-    const { customerId, restaurantId, items } = createOrderDto;
+  const { customerId, restaurantId, items, driverId } = createOrderDto;
 
-    // Check if the restaurant exists
-    const restaurant = await this.prisma.restaurant.findUnique({
-      where: { id: restaurantId },
-    });
-    if (!restaurant) {
-      throw new Error('Restaurant not found');
-    }
-
-    // Initialize an array to hold the order items and the total price
-    const orderItems = [];
-    let totalPrice = 0;
-
-    // Iterate through the items to verify and calculate the total price
-    for (const item of items) {
-      // Check if the menu item exists
-      const menuItem = await this.prisma.menuItem.findUnique({
-        where: { id: item.menuItemId },
-      });
-
-      // If the menu item is not found, throw an error
-      if (!menuItem) {
-        throw new Error(`Menu item with ID ${item.menuItemId} not found`);
-      }
-
-      // Calculate the price for the item
-      totalPrice += menuItem.price * item.quantity;
-
-      // Add the order item to the list
-      orderItems.push({
-        menuItemId: item.menuItemId,
-        quantity: item.quantity,
-        price: menuItem.price,
-      });
-    }
-
-    // Save the new order to the database
-    // const order = await this.prisma.order.create({
-    //   data: {
-    //     userId: customerId,
-    //     restaurantId,
-    //     totalPrice, // Total price for the order
-    //     status: 'processing', // Initial status of the order
-    //     items: {
-    //       create: orderItems, // Create the items in the order
-    //     },
-    //   },
-    // });
-  //   const order = await this.prisma.order.create({
-  //     userId: customerId,            // ตรวจสอบให้แน่ใจว่าใช้ฟิลด์ที่ตรงกัน
-  //       data: {
-  //     restaurantId,
-  //     totalPrice,
-  //     status: 'processing',
-  //     items: {
-  //        create: orderItems,
-  //      },
-  //   },
-  // });
-
-    const order = await this.prisma.order.create({
-      data: {
-        user: {
-          connect: { id: customerId }
-        },
-        restaurantId,
-        totalPrice,
-        status: 'PENDING',
-        items: {
-          create: items.map((item) => ({
-            menuItemId: item.menuItemId,
-            quantity: item.quantity,
-            // price: item.price,
-          })),
-        },
-      },
-    });
-
-    // Return the created order
-    return order;
+  // Check if the restaurant exists
+  const restaurant = await this.prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+  });
+  if (!restaurant) {
+    throw new Error('Restaurant not found');
   }
+
+  const orderItems = [];
+  let totalPrice = 0;
+
+  for (const item of items) {
+    const menuItem = await this.prisma.menuItem.findUnique({
+      where: { id: item.menuItemId },
+    });
+
+    if (!menuItem) {
+      throw new Error(`Menu item with ID ${item.menuItemId} not found`);
+    }
+
+    totalPrice += menuItem.price * item.quantity;
+
+    orderItems.push({
+      menuItemId: item.menuItemId,
+      quantity: item.quantity,
+      price: menuItem.price,
+    });
+  }
+
+  const shippingFee = 20;
+  totalPrice += shippingFee;
+
+  // Create the order with the driverId
+  const order = await this.prisma.order.create({
+    data: {
+      user: {
+        connect: { id: customerId },
+      },
+      restaurantId,
+      totalPrice,
+      shippingFee,
+      status: 'PENDING',
+      driverId, // Set driverId here
+      items: {
+        create: orderItems,
+      },
+    },
+  });
+
+  return order;
+}
+
 }

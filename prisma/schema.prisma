@@ -23,20 +23,6 @@ model User {
   orders            Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ
 }
 
-model Order {
-  id                Int         @id @default(autoincrement())
-  userId            Int
-  restaurantId      Int
-  totalPrice        Float
-  status            String
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-
-  user              User        @relation(fields: [userId], references: [id])  
-  items             OrderItem[]
-}
-
-
 model OrderItem {
   id                Int         @id @default(autoincrement())
   orderId           Int
@@ -49,7 +35,7 @@ model OrderItem {
 
 
 model Restaurant {
-  id                Int        @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   name              String
   location          String
   address           String?
@@ -57,11 +43,32 @@ model Restaurant {
 }
 
 model MenuItem {
-  id                Int         @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   name              String
   price             Float
   restaurantId      Int
-  restaurant        Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurant        Restaurant   @relation(fields: [restaurantId], references: [id])
 
   orderItems        OrderItem[] // เชื่อมโยงกลับกับ OrderItem
+}
+
+model Driver {
+  id        Int      @id @default(autoincrement())
+  name      String
+  orders    Order[]  // Orders assigned to the driver
+}
+
+model Order {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  restaurantId Int
+  totalPrice   Float
+  shippingFee  Float
+  status       String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  driverId     Int?       // Allow driverId to be nullable if not assigned
+  user         User       @relation(fields: [userId], references: [id])
+  items        OrderItem[]
+  driver       Driver?    @relation(fields: [driverId], references: [id]) // Add relation to Driver
 }

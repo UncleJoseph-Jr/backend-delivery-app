@@ -2,36 +2,89 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  // เพิ่มข้อมูลร้านอาหารตัวอย่าง
-  const restaurant = await prisma.restaurant.create({
-    data: {
-      name: 'Sample Restaurant',
-      address: '123 Sample St',
-      location: 'City Center',
-      menuItems: {
-        create: [
-          { name: 'Sample Dish 1', price: 10.0 },
-          { name: 'Sample Dish 2', price: 15.0 },
-          { name: 'Sample Dish 3', price: 20.0 },
-          { name: 'Sample Dish 4', price: 25.0 },
-          { name: 'Sample Dish 5', price: 30.0 },
-          { name: 'Sample Dish 6', price: 35.0 },
-          { name: 'Sample Dish 7', price: 40.0 },
-        ],
+async function createUsers() {
+  for (let i = 1; i <= 10; i++) {
+    await prisma.user.create({
+      data: {
+        name: `user${i}`,
+        password: `password${i}`,
+        email: `user${i}@example.com`,
+        role: 'USER', // สามารถปรับเป็น 'ADMIN' ได้
       },
-    },
-  });
+    });
+  }
+  console.log('Users created!');
+}
 
-  console.log('Sample data added:', restaurant);
+
+async function createRestaurants() {
+    for (let i = 1; i <= 10; i++) {
+      await prisma.restaurant.create({
+        data: {
+          name: `Restaurant ${i}`,
+          location: `Location ${i}`,
+        },
+      });
+    }
+    console.log('Restaurants created!');
+  }
+  
+
+  async function createMenuItems() {
+    for (let i = 1; i <= 10; i++) {
+        await prisma.menuItem.create({
+            data: {
+                name: `Dish ${i}`,
+                price: Math.floor(Math.random() * 100) + 10,
+                restaurantId: i,
+            },
+        });
+    }
+    console.log('Menu items created!');
+  }
+
+  async function createOrders() {
+  for (let i = 1; i <= 10; i++) {
+    const menuItems = await prisma.menuItem.findMany({
+      where: {
+        restaurantId: i,
+      },
+    });
+
+    const items = menuItems.map(item => ({
+      menuItemId: item.id,
+      quantity: Math.floor(Math.random() * 3) + 1, // random quantity between 1 and 3
+    }));
+
+    await prisma.order.create({
+      data: {
+        userId: i, // assuming userId matches
+        restaurantId: i,
+        totalPrice: items.reduce((total, item) => total + item.quantity * menuItems.find(menu => menu.id === item.menuItemId)?.price!, 0),
+        status: 'PENDING',
+        items: {
+          create: items,
+        },
+      },
+    });
+  }
+  console.log('Orders created!');
+}
+
+async function main() {
+    await createUsers();
+    await createRestaurants();
+    await createMenuItems();
+    await createOrders();
+
+    console.log('All data created!');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch(e => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

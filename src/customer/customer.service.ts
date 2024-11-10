@@ -40,4 +40,25 @@ export class CustomerService {
       },
     });
   }
+
+  // async getAllRestaurants() {
+  //   return this.prisma.restaurant.findMany({
+  //     include: {
+  //       menuItems: true,
+  //     }
+  //   });
+  // }
+
+  async getAllRestaurants() {
+  const restaurants = await this.prisma.restaurant.findMany({
+    include: {
+      menuItems: true,
+    },
+  });
+  console.log("Fetched restaurants:", restaurants); // เพิ่มการ log ข้อมูล
+  return restaurants;
+}
+
+
+  
 }

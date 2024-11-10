@@ -33,3 +33,20 @@ model Order {
 
   user      User     @relation(fields: [userId], references: [id])
 }
+
+model Restaurant {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String
+  address   String?
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id           Int      @id @default(autoincrement())
+  name         String
+  price        Float
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+}
+

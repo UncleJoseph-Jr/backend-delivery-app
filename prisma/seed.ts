@@ -13,6 +13,11 @@ async function main() {
         create: [
           { name: 'Sample Dish 1', price: 10.0 },
           { name: 'Sample Dish 2', price: 15.0 },
+          { name: 'Sample Dish 3', price: 20.0 },
+          { name: 'Sample Dish 4', price: 25.0 },
+          { name: 'Sample Dish 5', price: 30.0 },
+          { name: 'Sample Dish 6', price: 35.0 },
+          { name: 'Sample Dish 7', price: 40.0 },
         ],
       },
     },

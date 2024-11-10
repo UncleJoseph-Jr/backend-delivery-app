@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Put, Param, Get } from '@nestjs/common';
 import { CustomerService } from './customer.service';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('customer')
 export class CustomerController {
@@ -10,6 +11,13 @@ export class CustomerController {
   @Post('register')
   async registerCustomer(@Body() data: any) {
     return this.customerService.registerCustomer(data);
+  }
+
+  // Endpoint สำหรับการสร้างคำสั่งซื้อ
+  // Endpoint สำหรับการสร้างคำสั่งซื้อใหม่
+  @Post('order')
+  async placeOrder(@Body() createOrderDto: CreateOrderDto) {
+  return this.customerService.placeOrder(createOrderDto); // เรียกใช้ service
   }
 
   // Endpoint for updating the profile of a customer

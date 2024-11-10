@@ -14,39 +14,54 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   // เช่น "customer", "store", "driver", "admin"
-  createdAt DateTime @default(now())
-  orders    Order[]
+  id                Int      @id @default(autoincrement())
+  name              String
+  email             String   @unique
+  password          String
+  role              String   // เช่น "customer", "store", "driver", "admin"
+  createdAt         DateTime @default(now())
+  orders            Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  status    String   // เช่น "pending", "completed", "cancelled"
-  total     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int         @id @default(autoincrement())
+  userId            Int
+  restaurantId      Int
+  totalPrice        Float
+  status            String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
-  user      User     @relation(fields: [userId], references: [id])
+  user              User        @relation(fields: [userId], references: [id])  
+  items             OrderItem[]
 }
 
+
+model OrderItem {
+  id                Int         @id @default(autoincrement())
+  orderId           Int
+  menuItemId        Int
+  quantity          Int
+
+  order             Order       @relation(fields: [orderId], references: [id])
+  menuItem          MenuItem    @relation(fields: [menuItemId], references: [id])
+}
+
+
 model Restaurant {
-  id        Int      @id @default(autoincrement())
-  name      String
-  location  String
-  address   String?
-  menuItems MenuItem[]
+  id                Int        @id @default(autoincrement())
+  name              String
+  location          String
+  address           String?
+  menuItems         MenuItem[] // รายการเมนูที่ร้านอาหารมี
 }
 
 model MenuItem {
-  id           Int      @id @default(autoincrement())
-  name         String
-  price        Float
-  restaurantId Int
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-}
+  id                Int         @id @default(autoincrement())
+  name              String
+  price             Float
+  restaurantId      Int
+  restaurant        Restaurant @relation(fields: [restaurantId], references: [id])
 
+  orderItems        OrderItem[] // เชื่อมโยงกลับกับ OrderItem
+}

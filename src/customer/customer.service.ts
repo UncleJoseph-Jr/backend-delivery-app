@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { connect } from 'http2';
 
 @Injectable()
 export class CustomerService {
@@ -88,11 +89,21 @@ export class CustomerService {
 
     const order = await this.prisma.order.create({
       data: {
+        // user: { connect: { id: customerId } },
+        // restaurantId: restaurantId,
+        // totalPrice: totalPrice,
+        // shippingFee: shippingFee,
+        // status: 'PENDING',
+        // driver: { connect: { id: driverId } },
+        // items: {
+        //   create: orderItems,
+        // },
+
         user: { connect: { id: customerId } },
-        restaurantId: restaurantId,
+        restaurant: { connect: { id: restaurantId} },
         totalPrice: totalPrice,
         shippingFee: shippingFee,
-        status: 'PENDING',
+        status: 'pending',
         driver: { connect: { id: driverId } },
         items: {
           create: orderItems,
@@ -102,4 +113,30 @@ export class CustomerService {
 
     return order;
   }
+
+  // Order History function
+  async getOrderHistory(customerId: number) {
+    const customer = await this.prisma.user.findUnique({
+      where: { id: customerId },
+    });
+    if (!customer) {
+      throw new NotFoundException(`Customer with ID ${customerId} not found`);
+    }
+
+    const orders = await this.prisma.order.findMany({
+      where: { userId: customerId },
+      include: {
+        restaurant: true,
+        items: {
+          include: {
+            menuItem: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return orders;
+  }
+
 }

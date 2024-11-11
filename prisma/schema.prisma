@@ -14,62 +14,62 @@ generator client {
 }
 
 model User {
-  id                Int      @id @default(autoincrement())
-  name              String
-  email             String   @unique
-  password          String
-  role              String   // เช่น "customer", "store", "driver", "admin"
-  createdAt         DateTime @default(now())
-  orders            Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   // เช่น "customer", "store", "driver", "admin"
+  createdAt DateTime @default(now())
+  orders    Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ
 }
 
 model OrderItem {
-  id                Int         @id @default(autoincrement())
-  orderId           Int
-  menuItemId        Int
-  quantity          Int
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  menuItemId Int
+  quantity   Int
 
-  order             Order       @relation(fields: [orderId], references: [id])
-  menuItem          MenuItem    @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
 }
 
-
 model Restaurant {
-  id                Int          @id @default(autoincrement())
-  name              String
-  location          String
-  address           String?
-  menuItems         MenuItem[] // รายการเมนูที่ร้านอาหารมี
+  id        Int        @id @default(autoincrement())
+  name      String
+  location  String
+  address   String?
+  menuItems MenuItem[] // รายการเมนูที่ร้านอาหารมี
+  orders    Order[]    // เชื่อมโยงกลับกับคำสั่งซื้อ
 }
 
 model MenuItem {
-  id                Int          @id @default(autoincrement())
-  name              String
-  price             Float
-  restaurantId      Int
-  restaurant        Restaurant   @relation(fields: [restaurantId], references: [id])
+  id           Int        @id @default(autoincrement())
+  name         String
+  price        Float
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 
-  orderItems        OrderItem[] // เชื่อมโยงกลับกับ OrderItem
+  orderItems   OrderItem[] // เชื่อมโยงกลับกับ OrderItem
 }
 
 model Driver {
-  id        Int      @id @default(autoincrement())
-  name      String
-  orders    Order[]  // Orders assigned to the driver
+  id     Int    @id @default(autoincrement())
+  name   String
+  orders Order[]  // Orders assigned to the driver
 }
 
 model Order {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   userId       Int
   restaurantId Int
   totalPrice   Float
   shippingFee  Float
   status       String
   driverId     Int?
-  user         User     @relation(fields: [userId], references: [id])
-  driver       Driver?  @relation(fields: [driverId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  driver       Driver?    @relation(fields: [driverId], references: [id])
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // เพิ่มความสัมพันธ์กับ Restaurant
   items        OrderItem[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
-

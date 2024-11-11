@@ -34,4 +34,10 @@ export class CustomerController {
   async getAllRestaurants() {
     return this.customerService.getAllRestaurants();
   }
+
+  // Endpoint OrderHistory
+  @Get(':customerId/orders')
+  async getOrderHistory(@Param('customerId') customerId: string) {
+    return this.customerService.getOrderHistory(parseInt(customerId));
+  }
 }

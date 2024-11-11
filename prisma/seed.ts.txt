@@ -69,7 +69,10 @@ async function createOrders() {
         shippingFee: shippingFee, // เพิ่ม shippingFee
         status: 'PENDING',
         items: {
-          create: items,
+          create: items.map(item => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+          })),
         },
       },
     });

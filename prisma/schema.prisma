@@ -59,16 +59,17 @@ model Driver {
 }
 
 model Order {
-  id           Int        @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   userId       Int
   restaurantId Int
   totalPrice   Float
   shippingFee  Float
   status       String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  driverId     Int?       // Allow driverId to be nullable if not assigned
-  user         User       @relation(fields: [userId], references: [id])
+  driverId     Int?
+  user         User     @relation(fields: [userId], references: [id])
+  driver       Driver?  @relation(fields: [driverId], references: [id])
   items        OrderItem[]
-  driver       Driver?    @relation(fields: [driverId], references: [id]) // Add relation to Driver
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
+

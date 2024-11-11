@@ -16,34 +16,32 @@ async function createUsers() {
   console.log('Users created!');
 }
 
-
 async function createRestaurants() {
-    for (let i = 1; i <= 10; i++) {
-      await prisma.restaurant.create({
-        data: {
-          name: `Restaurant ${i}`,
-          location: `Location ${i}`,
-        },
-      });
-    }
-    console.log('Restaurants created!');
+  for (let i = 1; i <= 10; i++) {
+    await prisma.restaurant.create({
+      data: {
+        name: `Restaurant ${i}`,
+        location: `Location ${i}`,
+      },
+    });
   }
-  
+  console.log('Restaurants created!');
+}
 
-  async function createMenuItems() {
-    for (let i = 1; i <= 10; i++) {
-        await prisma.menuItem.create({
-            data: {
-                name: `Dish ${i}`,
-                price: Math.floor(Math.random() * 100) + 10,
-                restaurantId: i,
-            },
-        });
-    }
-    console.log('Menu items created!');
+async function createMenuItems() {
+  for (let i = 1; i <= 10; i++) {
+    await prisma.menuItem.create({
+      data: {
+        name: `Dish ${i}`,
+        price: Math.floor(Math.random() * 100) + 10,
+        restaurantId: i,
+      },
+    });
   }
+  console.log('Menu items created!');
+}
 
-  async function createOrders() {
+async function createOrders() {
   for (let i = 1; i <= 10; i++) {
     const menuItems = await prisma.menuItem.findMany({
       where: {
@@ -56,11 +54,19 @@ async function createRestaurants() {
       quantity: Math.floor(Math.random() * 3) + 1, // random quantity between 1 and 3
     }));
 
+    // คำนวณราคาทั้งหมดและกำหนดค่า shippingFee
+    const totalPrice = items.reduce(
+      (total, item) => total + item.quantity * (menuItems.find(menu => menu.id === item.menuItemId)?.price || 0),
+      0
+    );
+    const shippingFee = 5; // หรือปรับค่า shippingFee ตามที่ต้องการ
+
     await prisma.order.create({
       data: {
-        userId: i, // assuming userId matches
+        user: { connect: { id: i } },  // ใช้การเชื่อมต่อกับผู้ใช้โดยใช้ฟังก์ชัน connect
         restaurantId: i,
-        totalPrice: items.reduce((total, item) => total + item.quantity * menuItems.find(menu => menu.id === item.menuItemId)?.price!, 0),
+        totalPrice: totalPrice + shippingFee, // รวมค่าจัดส่ง
+        shippingFee: shippingFee, // เพิ่ม shippingFee
         status: 'PENDING',
         items: {
           create: items,
@@ -72,12 +78,12 @@ async function createRestaurants() {
 }
 
 async function main() {
-    await createUsers();
-    await createRestaurants();
-    await createMenuItems();
-    await createOrders();
+  await createUsers();
+  await createRestaurants();
+  await createMenuItems();
+  await createOrders();
 
-    console.log('All data created!');
+  console.log('All data created!');
 }
 
 main()

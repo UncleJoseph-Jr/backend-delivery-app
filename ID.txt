@@ -1,0 +1,12 @@
+{
+    "message": "User registered successfully",
+    "user": {
+        "id": 1,
+        "name": "YourName",
+        "email": "example1@example.com",
+        "password": "$2b$10$LLqiqzJUZCYlfv9gLOf6iOvxAdGPWvy6wVAsoVTblSWKJRfKD8K8q",
+        "role": "customer",
+        "createdAt": "2024-11-15T11:20:22.596Z"
+    }
+}
+

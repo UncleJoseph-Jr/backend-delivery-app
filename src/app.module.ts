@@ -10,9 +10,9 @@ import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [UserModule, AuthModule, PrismaModule, CustomerModule],
-  controllers: [AppController],  // นำ AppController กลับมา
+  controllers: [AppController],
   providers: [
-    AppService,  // นำ AppService กลับมา
+    AppService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

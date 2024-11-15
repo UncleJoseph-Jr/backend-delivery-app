@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { UserService } from '../user/user.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
@@ -14,6 +16,8 @@ import { JwtStrategy } from './jwt.strategy';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [UserService, JwtStrategy],
+  controllers: [AuthController],
+  providers: [AuthService, UserService, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

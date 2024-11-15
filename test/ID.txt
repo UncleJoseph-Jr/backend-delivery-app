@@ -1,0 +1,32 @@
+{
+    "message": "User registered successfully",
+    "user": {
+        "id": 1,
+        "name": "YourName",
+        "email": "example1@example.com",
+        "password": "$2b$10$LLqiqzJUZCYlfv9gLOf6iOvxAdGPWvy6wVAsoVTblSWKJRfKD8K8q",
+        "role": "customer",
+        "createdAt": "2024-11-15T11:20:22.596Z"
+    }
+}
+
+{
+    "message": "User registered successfully",
+    "user": {
+        "id": 2,
+        "name": "Test User",
+        "email": "testuser@example.com",
+        "password": "$2b$10$iftGZjy8hkTjigGtMkj.XunIcDqRt/KnLix60UszvsVMcr0.Is1iu",
+        "role": "customer",
+        "createdAt": "2024-11-15T11:25:57.941Z"
+    }
+}
+
+{
+  "email": "testuser@example.com",
+  "password": "securepassword123"
+}
+
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MzE2NzMzMDgsImV4cCI6MTczMTc1OTcwOH0.FLJ1QbNx3o6Han2kowREvdLSGkuNzFp4JJpOBbAq1Os"
+}

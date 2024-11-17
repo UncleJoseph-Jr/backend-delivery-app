@@ -1,30 +1,25 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from './roles.decorator';
-import { Role } from './role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const request = context.switchToHttp().getRequest();
+    const routePath = request.path;
 
-    if (!requiredRoles) {
+    // ข้ามตรวจสอบสำหรับ /api/auth/*
+    if (routePath.startsWith('/api/auth')) {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
-
-    // ตรวจสอบว่ามี user และ role หรือไม่
-    if (!user || !user.role) {
-      console.error("User or user role is undefined");
-      return false;
+    const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler());
+    if (!requiredRoles) {
+      return true; // ถ้าไม่มีบทบาทที่กำหนดไว้ ให้ผ่าน
     }
 
-    return requiredRoles.some((role) => user.role === role);
+    const user = request.user;
+    return requiredRoles.includes(user?.role);
   }
 }

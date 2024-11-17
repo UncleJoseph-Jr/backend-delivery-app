@@ -2,25 +2,14 @@
     "message": "User registered successfully",
     "user": {
         "id": 1,
-        "name": "YourName",
-        "email": "example1@example.com",
-        "password": "$2b$10$LLqiqzJUZCYlfv9gLOf6iOvxAdGPWvy6wVAsoVTblSWKJRfKD8K8q",
+        "name": "Test User",
+        "email": "testuser@example.com",
+        "password": "$2b$10$dgB0TvYU.AYgN/jwFkAlJO5x1oGVOzmgUxYtfS5/Gjt0nKUu71NEe",
         "role": "customer",
-        "createdAt": "2024-11-15T11:20:22.596Z"
+        "createdAt": "2024-11-16T12:04:49.844Z"
     }
 }
 
-{
-    "message": "User registered successfully",
-    "user": {
-        "id": 2,
-        "name": "Test User",
-        "email": "testuser@example.com",
-        "password": "$2b$10$iftGZjy8hkTjigGtMkj.XunIcDqRt/KnLix60UszvsVMcr0.Is1iu",
-        "role": "customer",
-        "createdAt": "2024-11-15T11:25:57.941Z"
-    }
-}
 
 {
   "email": "testuser@example.com",
@@ -28,5 +17,26 @@
 }
 
 {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MzE2NzMzMDgsImV4cCI6MTczMTc1OTcwOH0.FLJ1QbNx3o6Han2kowREvdLSGkuNzFp4JJpOBbAq1Os"
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MzE3NTg3NzIsImV4cCI6MTczMTg0NTE3Mn0.miAU_4EpXU2uJMmmOzfF6HAUzyXUvcDZXN01GQedcLU"
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+{
+  "email": "customer1@example.com",
+  "password": "12345678",
+  "name": "Customer User1",
+  "role": "customer"
+}
+
+{
+    "message": "User registered successfully",
+    "user": {
+        "id": 2,
+        "name": "Customer User1",
+        "email": "customer1@example.com",
+        "password": "$2b$10$WtC/78GQbrKgLfSDFPeyJ.Nw6THRZtv4K7pTMOH5X03L3kAjWtgca",
+        "role": "customer",
+        "createdAt": "2024-11-17T08:17:40.230Z"
+    }
 }

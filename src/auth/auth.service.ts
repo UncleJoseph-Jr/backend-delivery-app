@@ -12,35 +12,65 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.prisma.user.create({
-      data: {
-        name: registerDto.name,
-        email: registerDto.email,
-        password: hashedPassword,
-        role: registerDto.role || 'customer', // กำหนดค่า default role เป็น 'customer'
-      },
-    });
-    return { message: 'User registered successfully', user };
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: registerDto.email },
+      });
+
+      if (existingUser) {
+        throw new UnauthorizedException('Email alreade registered');
+      }
+
+      const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+      const user = await this.prisma.user.create({
+        data: {
+          name: registerDto.name,
+          email: registerDto.email,
+          password: hashedPassword,
+          role: registerDto.role || 'customer', // default role 'customer'
+        },
+      });
+      return { message: 'User registered successfully', user };
+    } catch (error) {
+      throw new UnauthorizedException('Registration failed');
+    }
   }
 
   async login(loginDto: { email: string; password: string }) {
     const { email, password } = loginDto;
 
-    // 
+    //
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    // if (!user || !(await bcrypt.compare(password, user.password))) {
+    //   throw new UnauthorizedException('Invalid email or password');
+    // }
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
     // JWT token
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
-      access_token: this.jwtService.sign(payload),
-    }
+      // access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, { expiresIn: '1d' }),
+      
+      // show user infomation
+      /*
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      */
+    };
   }
-
 }

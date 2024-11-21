@@ -54,7 +54,9 @@ export class CustomerService {
 
   // Function to place an order by a customer
   async placeOrder(createOrderDto: CreateOrderDto) {
-    const { customerId, restaurantId, items, driverId } = createOrderDto;
+    try {
+      //
+      const { customerId, restaurantId, items, driverId } = createOrderDto;
 
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
@@ -112,6 +114,12 @@ export class CustomerService {
     });
 
     return order;
+    }catch (error) {
+      console.error('Error placing order:', error)
+      throw new Error('Failed to place order')
+   
+    }
+    
   }
 
   // Order History function

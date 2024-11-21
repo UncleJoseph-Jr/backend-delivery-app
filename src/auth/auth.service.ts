@@ -37,40 +37,36 @@ export class AuthService {
   }
 
   async login(loginDto: { email: string; password: string }) {
-    const { email, password } = loginDto;
-
-    //
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: loginDto.email },
     });
 
-    // if (!user || !(await bcrypt.compare(password, user.password))) {
-    //   throw new UnauthorizedException('Invalid email or password');
-    // }
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('password not fond');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Email or password is incorrect. Please try again.');
     }
 
-    // JWT token
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    console.log('Generating token:', token); // Log the generated token
+
     return {
-      // access_token: this.jwtService.sign(payload),
-      access_token: this.jwtService.sign(payload, { expiresIn: '1d' }),
-      
-      // show user infomation
-      /*
+      access_token: token,
       user: {
         id: user.id,
-        name: user.name,
         email: user.email,
-        role: user.role,
-      },
-      */
+        role: user.role
+      }
     };
   }
 }

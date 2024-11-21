@@ -7,12 +7,21 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesGuard } from './auth/roles.guard';
 import { CustomerModule } from './customer/customer.module';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { JwtAuthGuard } from './auth/auth.guard';
 
 @Module({
-  imports: [UserModule, AuthModule, PrismaModule, CustomerModule],
+  imports: [
+    UserModule, 
+    AuthModule, 
+    PrismaModule, 
+    CustomerModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'your-secret-key',
+      signOptions: { expiresIn: '1d'},
+    }),
+    ],
   controllers: [AppController],
   providers: [
     JwtAuthGuard,

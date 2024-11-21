@@ -4,17 +4,19 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 
-@Controller('customer')
+@Controller('api/customer')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   // Endpoint for retrieving customer profile
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req: any) {
-    // console.log('Request User:', req.user);
-    // return req.user; // Return the user object from the JWT payload
-    return { message: 'This is the customer profile', user: req.user };
+  async getProfile(@Req() req: any) {
+    console.log('Request User:', req.user);
+    return {
+      message: 'Profile retrieved successfully',
+      user: req.user
+    };
   }
 
   // Endpoint for registering a new customer

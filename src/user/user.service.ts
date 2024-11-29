@@ -8,7 +8,7 @@ export class UserService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   // ฟังก์ชันการลงทะเบียน
-  async registerUser(data: any) {
+  async registerUser(data: { email: string; password: string; name: string }) {
   // ตรวจสอบข้อมูลที่ได้รับ
   console.log("Received data:", data);
   
@@ -24,7 +24,7 @@ export class UserService {
       name: data.name,
       email: data.email,
       password: hashedPassword,
-      role: data.role,
+      role: "user",
     },
   });
 }

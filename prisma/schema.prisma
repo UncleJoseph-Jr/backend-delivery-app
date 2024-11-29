@@ -18,7 +18,7 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      String   // เช่น "customer", "store", "driver", "admin"
+  role      String   @default("user")// เช่น "customer", "store", "driver", "admin" "user"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ

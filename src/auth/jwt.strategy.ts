@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -19,14 +19,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new UnauthorizedException('User not found');
     }
 
-    return { 
-      userId: user.id, 
-      username: user.name,
+    // ส่งคืนข้อมูลผู้ใช้งาน (สามารถเพิ่มฟิลด์ที่จำเป็นได้)
+    return {
+      userId: user.id,
+      name: user.name,
       email: user.email,
-      role: user.role
-     }; // return user object
+      role: user.role, // เพิ่มฟิลด์ role สำหรับ middleware
+    };
   }
 }

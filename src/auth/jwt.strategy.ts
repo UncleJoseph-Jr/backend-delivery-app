@@ -1,31 +1,11 @@
-// import { Injectable } from '@nestjs/common';
-// import { PassportStrategy } from '@nestjs/passport';
-// import { ExtractJwt, Strategy } from 'passport-jwt';
-
-// @Injectable()
-// export class JwtStrategy extends PassportStrategy(Strategy) {
-//   constructor() {
-//     super({
-//       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-//       ignoreExpiration: false,
-//       secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
-//     });
-//   }
-
-//   async validate(payload: any) {
-//     // คืนค่าผู้ใช้จากข้อมูล payload ที่อยู่ใน JWT
-//     console.log('JWT Payload');
-//     return { userId: payload.sub, email: payload.email, role: payload.role };
-//   }
-// }
-
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // ดึง JWT จาก header
       ignoreExpiration: false, // ไม่อนุญาตให้ใช้ token ที่หมดอายุ
@@ -34,7 +14,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // payload คือข้อมูลที่ถูก encode อยู่ใน token
-    return { userId: payload.sub, username: payload.username }; // return user object
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return { 
+      userId: user.id, 
+      username: user.name,
+      email: user.email,
+      role: user.role
+     }; // return user object
   }
 }

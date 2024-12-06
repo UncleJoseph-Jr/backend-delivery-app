@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -6,46 +6,54 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private prisma: PrismaService,  // Service for database operations
+    private jwtService: JwtService, // Service for handling JWT tokens
   ) {}
 
-  // ฟังก์ชันการลงทะเบียน
+  // Function to register a new user
   async registerUser(data: { email: string; password: string; name: string }) {
-    // ตรวจสอบข้อมูลที่ได้รับ
-    console.log('Received data:', data);
+    console.log('Received data:', data);  // Log the received data for debugging
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    // ตรวจสอบว่าข้อมูล name และ email ถูกต้อง
+    // Hash the user's password for secure storage
     if (!data.email || !data.name) {
       throw new Error('Email or name is missing');
     }
 
+    // Check if the email already exists in the database
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Email is already in use');
+    }
+
+    // Create a new user in the database
     return this.prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        role: 'user',
+        role: 'user', // Default role for new users
       },
     });
   }
 
-  // ฟังก์ชันการเข้าสู่ระบบ
+  // Function to log in a user
   async loginUser(data: { email: string; password: string }) {
-    // ตรวจสอบว่ามีค่า email ถูกต้อง
+    // Ensure the email field is provided
     if (!data.email) {
       throw new Error('Email is required for login');
     }
 
+    // Find the user by email in the database
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
     });
 
-    // if (!user) {
-    //   throw new Error('User not found');
-    // }
+    // Throw an exception if the user is not found or password is invalid
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -56,12 +64,13 @@ export class UserService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    // Create a JWT token for the user
     const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
 
+    // Return the login response with the token and user details
     return {
       message: 'Login successful',
-      // token: token,
       token,
       user: {
         id: user.id,
@@ -70,10 +79,9 @@ export class UserService {
         role: user.role,
       }
     };
-    // สร้าง token หรือทำขั้นตอนอื่น ๆ ที่ต้องการ
-    // return { message: "Login successful" };
   }
 
+  // Function to retrieve all users from the database
   async getAllUsers() {
     return this.prisma.user.findMany();
   }

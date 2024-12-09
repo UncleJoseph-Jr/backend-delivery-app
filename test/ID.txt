@@ -6,9 +6,51 @@ registere
   "name": "User1"
 }
 
+register a new user with a unique email.
+{
+  "message": "Email is already in use",
+  "error": "Conflict",
+  "statusCode": 409
+}
 
 login 
 {
   "email": "user1@test.com",
+  "password": "password123"
+}
+
+////////////////////////////////////////////////
+register admin
+{
+  "email": "admin@test.com",
+  "password": "password123",
+  "name": "Admin"
+}
+
+login admin
+{
+  "id": 7,
+  "name": "Admin",
+  "email": "admin@test.com",
+  "password": "$2b$10$S/QqNOYVpHycXwzIwTqiYu/KWpSj8U/vwGvz9utE6MLvmKGmbP5.e",
+  "role": "admin",
+  "createdAt": "2024-12-09T03:53:08.523Z",
+  "updatedAt": "2024-12-09T03:53:08.523Z"
+}
+
+///////////////////////////////////////////////
+
+register customer
+
+{
+  "email": "user2@test.com",
+  "password": "password123",
+  "name": "User2"
+}
+
+login customer
+
+{
+  "email": "user2@test.com",
   "password": "password123"
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Patch, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -17,20 +17,36 @@ export class UserController {
   }
 
   // Endpoint สำหรับการเข้าสู่ระบบ
-  // @Post('login')
-  // async login(@Body() body) {
-  //   return this.userService.loginUser(body);
-  // }
   @Post('login')
-  async login(@Body() LoginDto: { email: string; password: string }) {
-    return this.userService.loginUser(LoginDto);
+  async login(@Body() loginDto: { email: string; password: string }) {
+    return this.userService.loginUser(loginDto);
   }
 
-  // Endpoint นี้เข้าถึงได้เฉพาะ Admin เท่านั้น
+  // Endpoint สำหรับดึงข้อมูลผู้ใช้ทั้งหมด (เฉพาะ Admin เท่านั้น)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Get('all')
   async getAllUsers() {
     return this.userService.getAllUsers();
+  }
+
+  // Endpoint สำหรับเปลี่ยน Role ของผู้ใช้ (เฉพาะ Admin เท่านั้น)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Patch(':id/role')
+  async changeUserRole(
+    @Param('id') userId: string,
+    @Body('role') newRole: string,
+  ) {
+
+    console.log('Request to change role for user ID:', userId);
+    console.log('New role requested:', newRole);
+
+    // return this.userService.updateUserRole(userId, newRole);
+    const updateUser = await this.userService.updateUserRole(userId, newRole);
+
+    console.log('Updated user:', updateUser);
+
+    return updateUser;
   }
 }

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
           name: registerDto.name,
           email: registerDto.email,
           password: hashedPassword,
-          role: registerDto.role || 'customer', // default role 'customer'
+          role: registerDto.role ? registerDto.role as Role : Role.CUSTOMER, // default role 'customer'
         },
       });
       return { message: 'User registered successfully', user };

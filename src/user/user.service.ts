@@ -8,6 +8,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -42,7 +43,7 @@ export class UserService {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        role: 'user', // Default role for new users
+        role: Role.USER,
       },
     });
   }
@@ -92,9 +93,9 @@ export class UserService {
   }
 
   // Function to update a user's role
-  async updateUserRole(userId: string | number, newRole: string) {
+  async updateUserRole(userId: string | number, newRole: Role) {
     // Define valid roles
-    const validRoles = ['user', 'customer', 'store', 'driver', 'admin'];
+    const validRoles = Object.values(Role);
     if (!validRoles.includes(newRole)) {
       throw new ForbiddenException(`Invalid role: ${newRole}`);
     }

@@ -4,73 +4,102 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Define the data source for the PostgreSQL database
+
+// Define the data source for the PostgreSQL database
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// Generate Prisma Client for interacting with the database
 generator client {
   provider = "prisma-client-js"
 }
 
+// Define an enum for user roles
+enum Role {
+  USER       // Regular user with minimal access
+  CUSTOMER   // Customers who place orders
+  STORE      // Store owners who manage restaurants and menus
+  DRIVER     // Delivery drivers
+  ADMIN      // Admin with full control
+  MODERATOR  // Moderator with control
+}
+
+// Define the User model for user accounts
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("user")// เช่น "customer", "store", "driver", "admin" "user"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]  // คำสั่งซื้อที่ลูกค้าได้ทำ
+  id                  Int      @id @default(autoincrement()) // Primary key
+  name                String   @db.VarChar(50)               // User's name (max 50 characters)
+  email               String   @unique @db.VarChar(100)      // Unique email address (max 100 characters)
+  password            String                                 // Hashed password
+  role                Role     @default(USER)                // Role, default is USER
+  @@index([role])                                            // Add index for faster queries by role
+  isActive            Boolean  @default(true)                // Indicates if the user account is active
+  verificationToken   String?                                // Optional token for email verification
+  createdAt           DateTime @default(now())               // Auto-set creation timestamp
+  updatedAt           DateTime @updatedAt                    // Auto-update modification timestamp
+  orders              Order[]                                // Relationship to orders placed by the user
 }
 
-model OrderItem {
-  id         Int      @id @default(autoincrement())
-  orderId    Int
-  menuItemId Int
-  quantity   Int
-
-  order      Order    @relation(fields: [orderId], references: [id])
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-}
-
+// Define the Restaurant model for managing restaurant data
 model Restaurant {
-  id        Int        @id @default(autoincrement())
-  name      String
-  location  String
-  address   String?
-  menuItems MenuItem[] // รายการเมนูที่ร้านอาหารมี
-  orders    Order[]    // เชื่อมโยงกลับกับคำสั่งซื้อ
+  id        Int        @id @default(autoincrement()) // Primary key
+  name      String     @db.VarChar(100)              // Restaurant name (max 100 characters)
+  location  String                                   // Location details
+  address   String?                                  // Optional address field
+  menuItems MenuItem[]                               // Relationship to menu items
+  orders    Order[]                                  // Relationship to orders for the restaurant
 }
 
+// Define the MenuItem model for restaurant menu items
 model MenuItem {
-  id           Int        @id @default(autoincrement())
-  name         String
-  price        Float
-  restaurantId Int
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-
-  orderItems   OrderItem[] // เชื่อมโยงกลับกับ OrderItem
+  id           Int        @id @default(autoincrement())   // Primary key
+  name         String     @db.VarChar(100)                // Menu item name (max 100 characters)
+  price        Decimal                                    // Positive price
+  description  String?                                    // Optional description
+  imageUrl     String?                                    // Optional image URL
+  isAvailable  Boolean    @default(true)                  // Indicates if the menu item is available
+  restaurantId Int                                        // Foreign key to Restaurant
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relationship to Restaurant
+  orderItems   OrderItem[]                                // Relationship to OrderItems
 }
 
+// Define the Driver model for delivery drivers
 model Driver {
-  id     Int    @id @default(autoincrement())
-  name   String
-  orders Order[]  // Orders assigned to the driver
+  id     Int      @id @default(autoincrement()) // Primary key
+  name   String   @db.VarChar(50)              // Driver name (max 50 characters)
+  orders Order[]                              // Orders assigned to the driver
 }
 
+// Define the Order model for customer orders
 model Order {
-  id           Int        @id @default(autoincrement())
-  userId       Int
-  restaurantId Int
-  totalPrice   Float
-  shippingFee  Float
-  status       String
-  driverId     Int?
-  user         User       @relation(fields: [userId], references: [id])
-  driver       Driver?    @relation(fields: [driverId], references: [id])
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // เพิ่มความสัมพันธ์กับ Restaurant
-  items        OrderItem[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id           Int        @id @default(autoincrement()) // Primary key
+  userId       Int                                      // Foreign key to User
+  restaurantId Int                                      // Foreign key to Restaurant
+  totalPrice   Decimal                                  // Non-negative total price
+  shippingFee  Decimal                                  // Non-negative shipping fee
+  status       String     @default("PENDING")           // Order status with default value
+  @@index([status])                                     // Add index for faster queries by order status
+  driverId     Int?                                     // Foreign key to Driver (optional)
+  confirmedAt  DateTime?                                // Timestamp for order confirmation
+  deliveredAt  DateTime?                                // Timestamp for order delivery
+  user         User       @relation(fields: [userId], references: [id]) // Relationship to User
+  driver       Driver?    @relation(fields: [driverId], references: [id], onDelete: SetNull) // Optional relationship to Driver
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relationship to Restaurant
+  items        OrderItem[]                              // Relationship to OrderItems
+  createdAt    DateTime   @default(now())               // Auto-set creation timestamp
+  updatedAt    DateTime   @updatedAt                    // Auto-update modification timestamp
+}
+
+// Define the OrderItem model for items in an order
+model OrderItem {
+  id         Int      @id @default(autoincrement()) // Primary key
+  orderId    Int                                     // Foreign key to Order
+  menuItemId Int                                     // Foreign key to MenuItem
+  quantity   Int      @default(1) // Positive quantity with default value
+  order      Order    @relation(fields: [orderId], references: [id]) // Relationship to Order
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id]) // Relationship to MenuItem
+  @@index([orderId])                                   // Index for faster querying by orderId
+  @@index([menuItemId])                                // Index for faster querying by menuItemId
 }

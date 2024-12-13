@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { connect } from 'http2';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class CustomerService {
@@ -17,7 +18,7 @@ export class CustomerService {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        role: 'customer',
+        role: Role.CUSTOMER,
       },
     });
   }
@@ -77,7 +78,7 @@ export class CustomerService {
         throw new Error(`Menu item with ID ${item.menuItemId} not found`);
       }
 
-      totalPrice += menuItem.price * item.quantity;
+      totalPrice += (Number(menuItem.price) || 0) * item.quantity;
 
       orderItems.push({
         menuItemId: item.menuItemId,

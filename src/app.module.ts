@@ -10,6 +10,7 @@ import { CustomerModule } from './customer/customer.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { JwtAuthGuard } from './auth/auth.guard';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from './auth/auth.guard';
       secret: process.env.JWT_SECRET || 'your-secret-key',
       signOptions: { expiresIn: '1d'},
     }),
+    StoreModule,
     ],
   controllers: [AppController],
   providers: [

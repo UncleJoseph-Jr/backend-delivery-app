@@ -3,7 +3,8 @@ import {
   Injectable, 
   UnauthorizedException, 
   NotFoundException, 
-  ForbiddenException 
+  ForbiddenException, 
+  BadRequestException
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -94,24 +95,20 @@ export class UserService {
 
   // Function to update a user's role
   async updateUserRole(userId: string | number, newRole: Role) {
-    // Define valid roles
     const validRoles = Object.values(Role);
     if (!validRoles.includes(newRole)) {
       throw new ForbiddenException(`Invalid role: ${newRole}`);
     }
 
-    // Convert userId to a number if necessary
     const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
     if (isNaN(numericUserId)) {
-      throw new Error('Invalid user ID format');
+      throw new BadRequestException('Invalid user ID format');
     }
 
-    // Log the userId and the new role requested for debugging purposes
     console.log('Attempting to update role for user with ID:', numericUserId);
     console.log('New role requested:', newRole);
 
-    // Find the user by ID
     const user = await this.prisma.user.findUnique({
       where: { id: numericUserId },
     });
@@ -120,18 +117,15 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // Log the current role of the user before updating
     console.log('Current role of user:', user.role);
 
-    // Update the user's role in the database
-    const updatedUser = await this.prisma.user.update({
+    const updateUser = await this.prisma.user.update({
       where: { id: numericUserId },
       data: { role: newRole },
     });
 
-    // Log the updated user details after the role update
-    console.log('Updated user details:', updatedUser);
+    console.log('Updated user details:', updateUser);
 
-    return updatedUser;
+    return updateUser;
   }
 }

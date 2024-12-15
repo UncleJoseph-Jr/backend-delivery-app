@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Patch, Param, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -42,11 +42,16 @@ export class UserController {
     console.log('New role requested:', newRole);
 
     // แปลง newRole เป็น Role Enum
-    const role: Role = Role[newRole.toUpperCase() as keyof typeof Role];
+    // const role: Role = Role[newRole.toUpperCase() as keyof typeof Role];
+    const role: Role | undefined = Object.values(Role).find(
+      (r) => r === newRole.toUpperCase(),
+    ) as Role | undefined;
 
     // ตรวจสอบว่า role ที่แปลงมาเป็นค่าที่ถูกต้องหรือไม่
     if (!role) {
-      throw new Error('Invalid role');
+      console.error('Invalid role provided:', newRole);
+      throw new BadRequestException('Invalid role');
+      // throw new Error('Invalid role');
     }
 
     // เรียกใช้ฟังก์ชัน updateUserRole ด้วย role ที่แปลงแล้ว

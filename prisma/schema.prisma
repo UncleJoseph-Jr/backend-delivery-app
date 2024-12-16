@@ -40,6 +40,7 @@ model User {
   createdAt           DateTime @default(now())               // Auto-set creation timestamp
   updatedAt           DateTime @updatedAt                    // Auto-update modification timestamp
   orders              Order[]                                // Relationship to orders placed by the user
+  stores              Store[]                                // Relationship to Store (a User can own multiple stores)
 }
 
 // Define the Restaurant model for managing restaurant data
@@ -50,6 +51,8 @@ model Restaurant {
   address   String?                                  // Optional address field
   menuItems MenuItem[]                               // Relationship to menu items
   orders    Order[]                                  // Relationship to orders for the restaurant
+  storeId   Int                                      // Foreign key to Store
+  store     Store       @relation(fields: [storeId], references: [id])  // Relationship to Store
 }
 
 // Define the MenuItem model for restaurant menu items
@@ -60,6 +63,7 @@ model MenuItem {
   description  String?                                    // Optional description
   imageUrl     String?                                    // Optional image URL
   isAvailable  Boolean    @default(true)                  // Indicates if the menu item is available
+  tags         String[]   @default([])                    // Tags for better searchability
   restaurantId Int                                        // Foreign key to Restaurant
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relationship to Restaurant
   orderItems   OrderItem[]                                // Relationship to OrderItems
@@ -77,6 +81,7 @@ model Order {
   id           Int        @id @default(autoincrement()) // Primary key
   userId       Int                                      // Foreign key to User
   restaurantId Int                                      // Foreign key to Restaurant
+  storeId      Int?                                     // Foreign key to Store (optional)
   totalPrice   Decimal                                  // Non-negative total price
   shippingFee  Decimal                                  // Non-negative shipping fee
   status       String     @default("PENDING")           // Order status with default value
@@ -84,12 +89,26 @@ model Order {
   driverId     Int?                                     // Foreign key to Driver (optional)
   confirmedAt  DateTime?                                // Timestamp for order confirmation
   deliveredAt  DateTime?                                // Timestamp for order delivery
+  updatedBy    Int?                                     // Foreign key to User who updated the order
   user         User       @relation(fields: [userId], references: [id]) // Relationship to User
   driver       Driver?    @relation(fields: [driverId], references: [id], onDelete: SetNull) // Optional relationship to Driver
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relationship to Restaurant
+  store        Store?     @relation(fields: [storeId], references: [id]) // Optional relationship to Store
   items        OrderItem[]                              // Relationship to OrderItems
   createdAt    DateTime   @default(now())               // Auto-set creation timestamp
   updatedAt    DateTime   @updatedAt                    // Auto-update modification timestamp
+}
+
+//
+model Store {
+  id          Int          @id @default(autoincrement()) // Primary key
+  name        String       @db.VarChar(100)              // Store name
+  ownerId     Int                                        // Foreign key to User
+  owner       User         @relation(fields: [ownerId], references: [id]) // Relationship to User
+  restaurants Restaurant[]                              // Relationship to Restaurants
+  orders      Order[]                                   // Relationship to Orders
+  createdAt   DateTime     @default(now())               // Auto-set creation timestamp
+  updatedAt   DateTime     @updatedAt                    // Auto-update modification timestamp
 }
 
 // Define the OrderItem model for items in an order

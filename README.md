@@ -120,16 +120,79 @@ For detailed API documentation, please refer to the API Documentation.
 
 # Project Structure
 ```
-.
-├── src
-│   ├── auth          # JWT and Passport strategy
-│   ├── user          # User module for handling authentication and authorization
-│   ├── orders        # Order module for creating and managing orders
-│   ├── prisma        # Prisma client setup
-│   └── main.ts       # Entry point of the application
-├── prisma
-│   └── schema.prisma # Prisma schema file
-└── .env              # Environment variables
+backend/
+├── prisma/
+│   ├── migrations/           # Contains all migration files for tracking database schema changes.
+│   │   └── migration_lock.toml  # Lock file to ensure migration integrity across environments.
+│   ├── schema.prisma          # Prisma schema defining database models and relations.
+│   └── seed.ts                # Seed script for initializing database data (renamed from seed.ts.txt).
+├── src/
+│   ├── auth/                  # Authentication module.
+│   │   ├── dto/               # Data Transfer Objects for authentication (e.g., login and register).
+│   │   │   ├── login.dto.ts       # DTO for user login request.
+│   │   │   └── register.dto.ts    # DTO for user registration request.
+│   │   ├── guards/            # Guards to protect routes (e.g., JWT authentication and role-based access).
+│   │   │   ├── auth.guard.ts      # Guard for general authentication.
+│   │   │   ├── jwt-auth.guard.ts  # Guard for JWT-based authentication.
+│   │   │   └── roles.guard.ts     # Guard for role-based access control.
+│   │   ├── strategies/        # Strategies for authentication (e.g., JWT strategy).
+│   │   │   └── jwt.strategy.ts    # Strategy for validating JWT tokens.
+│   │   ├── decorators/        # Custom decorators for authentication and roles.
+│   │   │   └── roles.decorator.ts # Decorator for assigning roles to routes.
+│   │   ├── auth.controller.ts # Controller for handling authentication-related routes.
+│   │   ├── auth.middleware.ts # Middleware for processing authentication-related tasks.
+│   │   ├── auth.module.ts     # Module definition for the authentication feature.
+│   │   ├── auth.service.ts    # Service for handling authentication logic.
+│   │   └── role.enum.ts       # Enum for defining user roles (e.g., admin, user).
+│   ├── customer/              # Customer module for handling customer-specific logic.
+│   │   ├── dto/               # DTOs for customer-related requests (e.g., creating orders).
+│   │   │   └── create-order.dto.ts # DTO for creating a new order.
+│   │   ├── customer.controller.ts # Controller for customer-specific routes.
+│   │   ├── customer.module.ts # Module definition for the customer feature.
+│   │   └── customer.service.ts # Service for managing customer-related logic.
+│   ├── middleware/            # Middleware for various tasks (e.g., role management).
+│   │   ├── role.factory.ts    # Factory for creating roles dynamically.
+│   │   ├── role.middleware.ts # Middleware for handling role validation.
+│   ├── prisma/                # Prisma module for database connection and operations.
+│   │   ├── prisma.module.ts   # Module for integrating Prisma with the NestJS application.
+│   │   └── prisma.service.ts  # Service for interacting with the Prisma client.
+│   ├── store/                 # Store module for handling store-specific logic.
+│   │   ├── dto/               # DTOs for store-related requests (e.g., creating menus).
+│   │   │   ├── create-menu.dto.ts     # DTO for creating a new menu item.
+│   │   │   └── update-order-status.dto.ts # DTO for updating order status.
+│   │   ├── store.controller.ts # Controller for store-specific routes.
+│   │   ├── store.module.ts    # Module definition for the store feature.
+│   │   └── store.service.ts   # Service for managing store-related logic.
+│   ├── users/                 # Users module for managing user data.
+│   │   ├── user.controller.ts # Controller for user-specific routes.
+│   │   ├── user.module.ts     # Module definition for the user feature.
+│   │   └── user.service.ts    # Service for managing user-related logic.
+│   ├── app.controller.ts      # Main application controller.
+│   ├── app.module.ts          # Root module of the application.
+│   ├── app.service.ts         # Service for core application logic.
+│   └── main.ts                # Entry point for the application.
+├── test/
+│   ├── e2e/                   # End-to-end tests for the application.
+│   │   ├── app.e2e-spec.ts    # E2E tests for core application functionality.
+│   │   └── store.e2e-spec.ts  # E2E tests for store functionality.
+│   ├── utils/                 # Utility files for testing.
+│   │   └── test_API.md        # Documentation for testing APIs.
+│   └── jest-e2e.json          # Configuration for Jest E2E testing.
+├── docs/
+│   ├── Documentation.md       # Documentation for the project (renamed from UseAPI/Documentation.md).
+│   └── README.md              # Project overview and instructions.
+├── .env                       # Environment variables for the application.
+├── .eslintrc.js               # ESLint configuration file.
+├── .gitignore                 # List of files and folders to ignore in version control.
+├── .prettierrc                # Prettier configuration file.
+├── docker-compose.yml         # Docker Compose configuration for running the application.
+├── Dockerfile                 # Dockerfile for building the application container.
+├── nest-cli.json              # NestJS CLI configuration file.
+├── package-lock.json          # Lock file for package dependencies.
+├── package.json               # Dependency and script definitions for the project.
+├── tsconfig.build.json        # TypeScript configuration for building the project.
+└── tsconfig.json              # TypeScript configuration for the project.
+
 ```
 
 # Running with Docker (Optional)

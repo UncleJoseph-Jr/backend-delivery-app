@@ -88,7 +88,7 @@ networks:
 ```
 run command 
 ```bash 
-docker-compose up
+docker compose up
 ```
 
 4. **Set up the database** 
